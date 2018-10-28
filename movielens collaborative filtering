@@ -1,0 +1,760 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled4.ipynb",
+      "version": "0.3.2",
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "metadata": {
+        "id": "t67W1NHX12TG",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "!wget http://files.grouplens.org/datasets/movielens/ml-latest-small.zip\n",
+        "!unzip ml-latest-small.zip"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "8RcDYJ3w2FON",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/drive')"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "ZhchiCID25LP",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "b262ce3f-fa2d-4176-d56e-b47beaf4f5df"
+      },
+      "cell_type": "code",
+      "source": [
+        "!rm ml-latest-small.zip\n",
+        "!ls"
+      ],
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "drive  ml-latest-small\tsample_data\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "x0jgaxA384fO",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "9Lqtb0Z99ADG",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        },
+        "outputId": "5e86906e-2db1-4e8c-963b-67f33d7b1507"
+      },
+      "cell_type": "code",
+      "source": [
+        "ratings = pd.read_csv(\"ml-latest-small/ratings.csv\")\n",
+        "ratings.head()"
+      ],
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>userId</th>\n",
+              "      <th>movieId</th>\n",
+              "      <th>rating</th>\n",
+              "      <th>timestamp</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>964982703</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>1</td>\n",
+              "      <td>3</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>964981247</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>1</td>\n",
+              "      <td>6</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>964982224</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>1</td>\n",
+              "      <td>47</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>964983815</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>1</td>\n",
+              "      <td>50</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>964982931</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   userId  movieId  rating  timestamp\n",
+              "0       1        1     4.0  964982703\n",
+              "1       1        3     4.0  964981247\n",
+              "2       1        6     4.0  964982224\n",
+              "3       1       47     5.0  964983815\n",
+              "4       1       50     5.0  964982931"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 8
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "YSpodZWj9yXY",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        },
+        "outputId": "2696863f-a982-44fd-d924-275b7e21d925"
+      },
+      "cell_type": "code",
+      "source": [
+        "movies = pd.read_csv(\"ml-latest-small/movies.csv\")\n",
+        "movies.head()"
+      ],
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>movieId</th>\n",
+              "      <th>title</th>\n",
+              "      <th>genres</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1</td>\n",
+              "      <td>Toy Story (1995)</td>\n",
+              "      <td>Adventure|Animation|Children|Comedy|Fantasy</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>2</td>\n",
+              "      <td>Jumanji (1995)</td>\n",
+              "      <td>Adventure|Children|Fantasy</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>3</td>\n",
+              "      <td>Grumpier Old Men (1995)</td>\n",
+              "      <td>Comedy|Romance</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>4</td>\n",
+              "      <td>Waiting to Exhale (1995)</td>\n",
+              "      <td>Comedy|Drama|Romance</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>5</td>\n",
+              "      <td>Father of the Bride Part II (1995)</td>\n",
+              "      <td>Comedy</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   movieId                               title  \\\n",
+              "0        1                    Toy Story (1995)   \n",
+              "1        2                      Jumanji (1995)   \n",
+              "2        3             Grumpier Old Men (1995)   \n",
+              "3        4            Waiting to Exhale (1995)   \n",
+              "4        5  Father of the Bride Part II (1995)   \n",
+              "\n",
+              "                                        genres  \n",
+              "0  Adventure|Animation|Children|Comedy|Fantasy  \n",
+              "1                   Adventure|Children|Fantasy  \n",
+              "2                               Comedy|Romance  \n",
+              "3                         Comedy|Drama|Romance  \n",
+              "4                                       Comedy  "
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "LadldAyc_BwI",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "ratings = pd.merge(ratings[['userId', 'movieId', 'rating']], movies[['movieId', 'title']], how='left', left_on = 'movieId', right_on = 'movieId')"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "9MyUdlmf_agR",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "a4c78793-82d2-430d-c2a5-d16b0371f044"
+      },
+      "cell_type": "code",
+      "source": [
+        "ratings.shape"
+      ],
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(100836, 4)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 11
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "WQ4vWwen_ljR",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 264
+        },
+        "outputId": "05f47dd3-5fbc-4030-f3b1-fa2006f66f9a"
+      },
+      "cell_type": "code",
+      "source": [
+        "rp = ratings.pivot_table(columns = ['movieId'], index = ['userId'], values = 'rating')\n",
+        "rp = rp.fillna(0)\n",
+        "rp.head()"
+      ],
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th>movieId</th>\n",
+              "      <th>1</th>\n",
+              "      <th>2</th>\n",
+              "      <th>3</th>\n",
+              "      <th>4</th>\n",
+              "      <th>5</th>\n",
+              "      <th>6</th>\n",
+              "      <th>7</th>\n",
+              "      <th>8</th>\n",
+              "      <th>9</th>\n",
+              "      <th>10</th>\n",
+              "      <th>...</th>\n",
+              "      <th>193565</th>\n",
+              "      <th>193567</th>\n",
+              "      <th>193571</th>\n",
+              "      <th>193573</th>\n",
+              "      <th>193579</th>\n",
+              "      <th>193581</th>\n",
+              "      <th>193583</th>\n",
+              "      <th>193585</th>\n",
+              "      <th>193587</th>\n",
+              "      <th>193609</th>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>userId</th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>4.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>4.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>5</th>\n",
+              "      <td>4.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>5 rows × 9724 columns</p>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "movieId  1       2       3       4       5       6       7       8       \\\n",
+              "userId                                                                    \n",
+              "1           4.0     0.0     4.0     0.0     0.0     4.0     0.0     0.0   \n",
+              "2           0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0   \n",
+              "3           0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0   \n",
+              "4           0.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0   \n",
+              "5           4.0     0.0     0.0     0.0     0.0     0.0     0.0     0.0   \n",
+              "\n",
+              "movieId  9       10       ...    193565  193567  193571  193573  193579  \\\n",
+              "userId                    ...                                             \n",
+              "1           0.0     0.0   ...       0.0     0.0     0.0     0.0     0.0   \n",
+              "2           0.0     0.0   ...       0.0     0.0     0.0     0.0     0.0   \n",
+              "3           0.0     0.0   ...       0.0     0.0     0.0     0.0     0.0   \n",
+              "4           0.0     0.0   ...       0.0     0.0     0.0     0.0     0.0   \n",
+              "5           0.0     0.0   ...       0.0     0.0     0.0     0.0     0.0   \n",
+              "\n",
+              "movieId  193581  193583  193585  193587  193609  \n",
+              "userId                                           \n",
+              "1           0.0     0.0     0.0     0.0     0.0  \n",
+              "2           0.0     0.0     0.0     0.0     0.0  \n",
+              "3           0.0     0.0     0.0     0.0     0.0  \n",
+              "4           0.0     0.0     0.0     0.0     0.0  \n",
+              "5           0.0     0.0     0.0     0.0     0.0  \n",
+              "\n",
+              "[5 rows x 9724 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "hz1VyWlJKrM-",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "rp_mat = rp.as_matrix()"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "RZHZBYNzLgO7",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "from scipy.spatial.distance import cosine\n",
+        "m,n = rp.shape\n",
+        "mat_users = np.zeros((m, m))"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "78-33SvGL6-7",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "cell_type": "code",
+      "source": [
+        "for i in range(m):\n",
+        "  for j in range(m):\n",
+        "    if i != j:\n",
+        "      mat_users[i][j] = (1 - cosine(rp_mat[i,:], rp_mat[j,:]))\n",
+        "    else:\n",
+        "      mat_users[i][j] = 0\n",
+        "      \n",
+        "pd_users = pd.DataFrame(mat_users, index = rp.index, columns = rp.index)\n",
+        "    "
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "metadata": {
+        "id": "IyeOjzQLTZlk",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 153
+        },
+        "outputId": "3c676a1a-4749-49a8-8456-30fe4f836af6"
+      },
+      "cell_type": "code",
+      "source": [
+        "def topn_simusers(uid = 16, n=5):\n",
+        "  users = pd_users.loc[uid, :].sort_values(ascending=False)\n",
+        "  print(users.shape)\n",
+        "  topn_users = users.iloc[:n,]\n",
+        "  topn_users = topn_users.rename('score')\n",
+        "  return pd.DataFrame(topn_users)\n",
+        "\n",
+        "print(topn_simusers())"
+      ],
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "(610,)\n",
+            "           score\n",
+            "userId          \n",
+            "17      0.456096\n",
+            "131     0.446127\n",
+            "445     0.400501\n",
+            "348     0.380315\n",
+            "251     0.368759\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "dUMkIcVpYM0i",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 425
+        },
+        "outputId": "95b91fae-4499-4de5-dde1-53f18b6f1c4d"
+      },
+      "cell_type": "code",
+      "source": [
+        "def topn_movieratings(uid = 355, n = 10):\n",
+        "  uid_ratings = ratings.loc[ratings[\"userId\"]==uid]\n",
+        "  uid_ratings = uid_ratings.sort_values(by=\"rating\", ascending=[False])\n",
+        "  print(\"Top\", n, \"movie ratings of userId: \", uid)\n",
+        "  return uid_ratings.iloc[:n,]\n",
+        "\n",
+        "print(topn_movieratings())"
+      ],
+      "execution_count": 29,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Top 10 movie ratings of userId:  355\n",
+            "       userId  movieId  rating  \\\n",
+            "53828     355     2916     5.0   \n",
+            "53814     355      900     5.0   \n",
+            "53815     355      901     5.0   \n",
+            "53826     355     2628     5.0   \n",
+            "53819     355      933     5.0   \n",
+            "53820     355     1198     5.0   \n",
+            "53821     355     1580     4.0   \n",
+            "53809     355      316     4.0   \n",
+            "53832     355     3269     4.0   \n",
+            "53831     355     3175     4.0   \n",
+            "\n",
+            "                                                   title  \n",
+            "53828                                Total Recall (1990)  \n",
+            "53814                       American in Paris, An (1951)  \n",
+            "53815                                  Funny Face (1957)  \n",
+            "53826   Star Wars: Episode I - The Phantom Menace (1999)  \n",
+            "53819                            To Catch a Thief (1955)  \n",
+            "53820  Raiders of the Lost Ark (Indiana Jones and the...  \n",
+            "53821                   Men in Black (a.k.a. MIB) (1997)  \n",
+            "53809                                    Stargate (1994)  \n",
+            "53832                               Forever Young (1992)  \n",
+            "53831                                Galaxy Quest (1999)  \n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "id": "elv7lbQrfLBm",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "71f44365-c074-4f2c-b12c-72803a2fd74c"
+      },
+      "cell_type": "code",
+      "source": [
+        "# Movie similarity\n",
+        "import time\n",
+        "start_time = time.time()\n",
+        "mat_movies = np.zeros((n,n))\n",
+        "\n",
+        "for i in range(n):\n",
+        "  for j in range(n):\n",
+        "    if i!=j:\n",
+        "      mat_movies[i, j] = (1 -cosine(rp_mat[:, i], rp_mat[:, j]))\n",
+        "    else:\n",
+        "      mat_movies[i, j]=0\n",
+        "\n",
+        "print(\"--- %s seconds ---\" % (time.time() - start_time))\n",
+        "pd_movies = pd.DataFrame(mat_movies,index =rp.columns ,columns=rp.columns )"
+      ],
+      "execution_count": 31,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "--- 2659.714516878128 seconds ---\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    }
+  ]
+}
